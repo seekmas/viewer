@@ -1,0 +1,143 @@
+<!doctype html>
+
+<html lang="en" class="no-js">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../documentViewer/css/style.css">
+    <link rel="stylesheet" href="css/demo.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../documentViewer/libs/yepnope.1.5.3-min.js"></script>
+    <script type="text/javascript" src="../documentViewer/ttw-document-viewer.min.js"></script>
+    <script type="text/javascript" src="js/jquery.tools.min.js"></script>
+
+    <script type="text/javascript">
+        $(function() {
+            var currentDocument, currentWidth = 500,
+                    basePath = document.URL + 'sample-files/',
+                    $sidebar = $('#sidebar'),
+
+                    //initialize the plugin
+                    myDocViewer = $('#document-preview').documentViewer({
+                        path:'../documentViewer/'
+                    });
+
+            //initialize the  file extension icons (in the sidebar)
+            $('.document-list').find('div').each(function(i, link) {
+                var $link = $(link),
+                        href = $link.attr('data-path'),
+                        ext = /(?:\.([^.]+))?$/.exec(href)[1];
+
+                //since the text and code files need relative paths, we do not want to append the base path
+                if(!$link.hasClass('text-code'))
+                    $link.attr('data-path', basePath + href);
+
+                //populate the file type icon
+                $link.find('.ext').html(ext);
+            });
+
+            //handle document clicks in the sidebar
+            $('.document-list').find('div').on('click', function(e) {
+                var $document = $(this);
+
+                //mark this document as active/highlighted
+                $sidebar.find('.active').removeClass('active');
+                $document.parent().addClass('active');
+
+                //load the document
+                currentDocument = $document.attr('data-path');
+                myDocViewer.load(currentDocument, {width:currentWidth});
+                e.preventDefault();
+            });
+
+            //ie 8 refuses to obey css 100% height, not worth investigating for a demo
+            $sidebar.height($(window).height());
+
+            //initialize the scrollbar in the sidebar
+            $sidebar.tinyscrollbar();
+            $(window).resize(function() {
+                $sidebar.height($(this).height());
+                $sidebar.tinyscrollbar_update();
+
+            });
+
+            //initialze the range input
+            $("#size").rangeinput({
+                step:100,
+                change:function(e, value){
+                    currentWidth = value;
+
+                    if(currentDocument)
+                        myDocViewer.load(currentDocument, {width:currentWidth});
+                }
+            });
+        });
+
+    </script>
+
+</head>
+
+<body>
+
+<div id="main" role="main">
+
+    <div id="sidebar" class="scrollable">
+
+        <div class="viewport">
+
+            <div class="scroll-content">
+
+                <div id="size-wrapper" class="clearfix">
+                    <h4>Viewer Size</h4>
+                    <!-- HTML5 range input -->
+                    <input id="size" type="range" name="test" min="200" max="1000" value="500">
+                </div>
+
+                <h3>PDFs</h3>
+
+                <ul class="document-list">
+
+                    <li>
+                        <div data-path="compressed.tracemonkey-pldi-09.pdf"><span class="ext"></span>Research Paper
+                        </div>
+                    </li>
+
+                </ul>
+
+
+                <h3>Text &amp; Code</h3>
+
+                <ul class="document-list">
+
+                    <li>
+                        <div class="text-code" data-path="../../demo/sample-files/two-cities.txt"><span
+                                class="ext"></span>A Tale Of Two Cities
+                        </div>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="document-preview"></div>
+
+
+
+
+</div>
+
+
+</body>
+
+</html>
+
+        
